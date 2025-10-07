@@ -2,6 +2,8 @@ package vn.taidung.jobhunter.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,33 +24,34 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/user")
-    public User createNewUser(@RequestBody User postManUser) {
+    @PostMapping("/users")
+    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
 
         User tdUser = this.userService.handleCreateUser(postManUser);
 
-        return tdUser;
+        return ResponseEntity.status(HttpStatus.CREATED).body(tdUser);
     }
 
-    @DeleteMapping("/user/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         this.userService.handleDeleteUser(id);
-        return "tdung";
+        return ResponseEntity.status(HttpStatus.OK).body("tdUser");
     }
 
-    @GetMapping("/user/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return this.userService.fetchUserById(id);
+    @GetMapping("/users/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User fetchUser = this.userService.fetchUserById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(fetchUser);
     }
 
-    @GetMapping("/user")
-    public List<User> getAllUser() {
-        return this.userService.fetchAllUsers();
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUser() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.fetchAllUsers());
     }
 
-    @PutMapping("/user")
-    public User updateUser(@RequestBody User user) {
+    @PutMapping("/users")
+    public ResponseEntity<User> updateUser(@RequestBody User user) {
         User tdUser = this.userService.handleUpdateUser(user);
-        return tdUser;
+        return ResponseEntity.ok(tdUser);
     }
 }
