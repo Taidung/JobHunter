@@ -1,4 +1,4 @@
-package vn.taidung.jobhunter.service.error;
+package vn.taidung.jobhunter.util.error;
 
 public class IdInvalidException extends Exception {
 

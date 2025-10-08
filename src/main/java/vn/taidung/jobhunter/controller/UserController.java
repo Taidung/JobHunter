@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import vn.taidung.jobhunter.domain.User;
 import vn.taidung.jobhunter.service.UserService;
-import vn.taidung.jobhunter.service.error.IdInvalidException;
+import vn.taidung.jobhunter.util.error.IdInvalidException;
 
 @RestController
 public class UserController {
