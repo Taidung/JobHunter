@@ -45,7 +45,7 @@ public class CompanyController {
         int current = Integer.parseInt(sCurrent);
         int pageSize = Integer.parseInt(sPageSize);
         Pageable pageable = PageRequest.of(current - 1, pageSize);
-        return ResponseEntity.status(HttpStatus.OK).body(this.companyService.handleGetCompany(pageable));
+        return ResponseEntity.ok(this.companyService.handleGetCompany(pageable));
     }
 
     @PutMapping("/companies")
