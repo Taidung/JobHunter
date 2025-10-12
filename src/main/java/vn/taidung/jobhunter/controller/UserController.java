@@ -23,6 +23,7 @@ import com.turkraft.springfilter.boot.Filter;
 import vn.taidung.jobhunter.domain.User;
 import vn.taidung.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.taidung.jobhunter.service.UserService;
+import vn.taidung.jobhunter.util.annotation.ApiMessage;
 import vn.taidung.jobhunter.util.error.IdInvalidException;
 
 @RestController
@@ -61,6 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @ApiMessage("fetch all users")
     public ResponseEntity<ResultPaginationDTO> getAllUser(
             @Filter Specification<User> spec,
             Pageable pageable) {
