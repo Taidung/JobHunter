@@ -1,9 +1,5 @@
 package vn.taidung.jobhunter.controller;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -16,12 +12,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turkraft.springfilter.boot.Filter;
 
+import jakarta.validation.Valid;
 import vn.taidung.jobhunter.domain.User;
+import vn.taidung.jobhunter.domain.dto.ResCreateUserDTO;
+import vn.taidung.jobhunter.domain.dto.ResUpdateUserDTO;
+import vn.taidung.jobhunter.domain.dto.ResUserDTO;
 import vn.taidung.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.taidung.jobhunter.service.UserService;
 import vn.taidung.jobhunter.util.annotation.ApiMessage;
@@ -41,26 +40,41 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createNewUser(@RequestBody User postManUser) {
+    @ApiMessage("Create a new user")
+    public ResponseEntity<ResCreateUserDTO> createNewUser(@Valid @RequestBody User postManUser)
+            throws IdInvalidException {
+        boolean isEmailExist = this.userService.isEmailExist(postManUser.getEmail());
+        if (isEmailExist) {
+            throw new IdInvalidException(
+                    "Email " + postManUser.getEmail() + "đã tồn tại, vui lòng sử dụng email");
+        }
+
         String hashPassword = this.passwordEncoder.encode(postManUser.getPassword());
         postManUser.setPassword(hashPassword);
         User tdUser = this.userService.handleCreateUser(postManUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(tdUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(tdUser));
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) throws IdInvalidException {
-        if (id >= 1500) {
-            throw new IdInvalidException("Id khong lon hon 1500");
+    @ApiMessage("Delete a user")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws IdInvalidException {
+        User currentUser = this.userService.fetchUserById(id);
+        if (currentUser == null) {
+            throw new IdInvalidException("User với id = " + id + " không tồn tại");
         }
         this.userService.handleDeleteUser(id);
-        return ResponseEntity.status(HttpStatus.OK).body("tdUser");
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    @ApiMessage("fetch user by id")
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable Long id) throws IdInvalidException {
         User fetchUser = this.userService.fetchUserById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(fetchUser);
+        if (fetchUser == null) {
+            throw new IdInvalidException("User với id = " + id + " không tồn tại");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(fetchUser));
     }
 
     @GetMapping("/users")
@@ -72,8 +86,12 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
+    @ApiMessage("Update a user")
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
         User tdUser = this.userService.handleUpdateUser(user);
-        return ResponseEntity.ok(tdUser);
+        if (tdUser == null) {
+            throw new IdInvalidException("User với id = " + user.getId() + " không tồn tại");
+        }
+        return ResponseEntity.ok(this.userService.convertToResUpdateUserDTO(tdUser));
     }
 }
