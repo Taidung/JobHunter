@@ -1,4 +1,4 @@
-package vn.taidung.jobhunter.domain.dto;
+package vn.taidung.jobhunter.domain.response;
 
 import java.time.Instant;
 
